@@ -6,3 +6,10 @@ goroku
 
 heroku library for golang
 
+
+## Usage
+
+```
+import "gopkg.in/kyokomi/goroku.v1"
+```
+
