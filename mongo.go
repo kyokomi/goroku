@@ -2,11 +2,8 @@ package goroku
 
 import (
 	"fmt"
-
-	"os"
-
 	"net/url"
-
+	"os"
 	"strings"
 
 	"golang.org/x/net/context"
@@ -19,7 +16,8 @@ type mongodb string
 
 var databaseName string
 
-func MustMongoDB(ctx context.Context) (*mgo.Session) {
+// MustMongoDB Must is a helper that wraps a call to a function returning (*mgo.Session, error) and panics if the error is non-nil
+func MustMongoDB(ctx context.Context) *mgo.Session {
 	db, ok := MongoDB(ctx)
 	if !ok {
 		panic("not found mongoDB")
@@ -27,20 +25,24 @@ func MustMongoDB(ctx context.Context) (*mgo.Session) {
 	return db
 }
 
+// MongoDB returns the connected redis client
 func MongoDB(ctx context.Context) (*mgo.Session, bool) {
 	key := mongodb(mongoDBName)
 	session, ok := ctx.Value(key).(*mgo.Session)
 	return session, ok
 }
 
+// MongoDBName return mongoDB name
 func MongoDBName() string {
 	return databaseName
 }
 
+// WithMockMongoDB mock mongoDB name
 func WithMockMongoDB() {
 	databaseName = "test_" + mongoDBName
 }
 
+// OpenMongoDB open MongoDB connections in the context's default
 func OpenMongoDB(ctx context.Context) context.Context {
 	uri, dbName := getHerokuMongoURI()
 	databaseName = dbName
@@ -73,6 +75,7 @@ func getHerokuMongoURI() (uri string, dbName string) {
 	return
 }
 
+// CloseMongoDB closes mongoDB connections in the context's
 func CloseMongoDB(ctx context.Context) context.Context {
 	sesh, _ := MongoDB(ctx)
 	if sesh == nil {

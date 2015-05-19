@@ -12,6 +12,7 @@ import (
 
 type redisDB string
 
+// MustRedis Must is a helper that wraps a call to a function returning (*redis.Client, error) and panics if the error is non-nil
 func MustRedis(ctx context.Context) (*redis.Client) {
 	db, ok := Redis(ctx)
 	if !ok {
@@ -20,12 +21,14 @@ func MustRedis(ctx context.Context) (*redis.Client) {
 	return db
 }
 
+// Redis returns the connected redis client for the default name
 func Redis(ctx context.Context) (*redis.Client, bool) {
 	key := redisDB("default")
 	db, ok := ctx.Value(key).(*redis.Client)
 	return db, ok
 }
 
+// OpenRedis open Redis connections in the context's default
 func OpenRedis(ctx context.Context) context.Context {
 	addr, password := GetHerokuRedisAddr()
 	client := redis.NewTCPClient(&redis.Options{
@@ -36,6 +39,7 @@ func OpenRedis(ctx context.Context) context.Context {
 	return ctx
 }
 
+// GetHerokuRedisAddr returns heroku env
 func GetHerokuRedisAddr() (addr string, password string) {
 	addr = fmt.Sprintf("%s:%d", "localhost", 6379)
 	password = ""
@@ -58,6 +62,7 @@ func GetHerokuRedisAddr() (addr string, password string) {
 	return
 }
 
+// CloseRedis closes Redis connections in the context's default
 func CloseRedis(ctx context.Context) context.Context {
 	client, _ := Redis(ctx)
 	if client == nil {
